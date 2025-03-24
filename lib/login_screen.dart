@@ -21,7 +21,7 @@ class LoginScreenState extends State<LoginScreen> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       username.text = prefs.getString('username') ?? '';
-      password.text = prefs.getString('passworrd') ?? '';
+      password.text = prefs.getString('password') ?? '';
     });
   }
 
@@ -42,35 +42,44 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Login"), 
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: username,
-              decoration: const InputDecoration(labelText: "Username"),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(onPressed: authorization, child: const Text("Enter"),),
-            const SizedBox(height: 20), 
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context, 
-                  MaterialPageRoute(builder: (context) => MakeAccountScreen()),
-                );
-              },
-              child: const Text("Make Account"),
-            )
-          ],
+        appBar: AppBar(
+          title: const Text("Login"),
         ),
-      )
-    );
+        body: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: username,
+                decoration: const InputDecoration(labelText: "Username", border: OutlineInputBorder(), alignLabelWithHint: true,),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: password,
+                decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder(), alignLabelWithHint: true,),
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: authorization,
+                child: const Text("Enter"),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => AccountSetupScreen()),
+                  );
+                },
+                child: const Text("Make Account"),
+              )
+            ],
+          ),
+        ));
   }
 }
