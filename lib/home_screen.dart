@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -15,13 +17,30 @@ class HomeScreenState extends State<HomeScreen> {
     'Rent/Utilities',
     'Shopping'
   ];
-  final Map<String, bool> selectedExpeseCategory = {
-    'Entertainment': false,
-    'Dining': false,
-    'Grocery': false,
-    'Rent/Utilities': false,
-    'Shopping': false,
+  final Map<String, double> expenseNames = { 
+    'Entertainment': 0.0,
+    'Dining': 0.0,
+    'Grocery': 0.0,
+    'Rent/Utilities': 0.0,
+    'Shopping': 0.0,
   };
+  double totalIncome = 0.0;
+
+  void incomeUpdate(double incomeAmt) {
+    setState(() {
+      totalIncome = totalIncome + incomeAmt;
+    });
+  }
+
+  void expenseUpdate(Map<String, bool> selectedCategories, double expenseAmt) {
+    setState(() {
+      selectedCategories.forEach((category, isSelected) {
+        if (isSelected) {
+          expenseNames[category] = (expenseNames[category] ?? 0.0) + expenseAmt; 
+        }
+      });
+    });
+  }
 
   void incomePopUp() {
     showModalBottomSheet(
@@ -64,6 +83,12 @@ class HomeScreenState extends State<HomeScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
+            Map<String, bool> selectedCategories = {
+              'Entertainment': false,
+              'Grocery': false,
+              'Rent/Utilities': false,
+              'Shopping': false,
+            };
             return Padding(
               padding: MediaQuery.of(context).viewInsets,
               child: Container(
@@ -85,14 +110,13 @@ class HomeScreenState extends State<HomeScreen> {
                     SizedBox(height: 10),
                     const Text('Categories'),
                     Column(
-                      children: expenseCategories.map((expenseCategories) {
+                      children: expenseCategories.map((category) {
                         return CheckboxListTile(
-                          title: Text(expenseCategories),
-                          value: selectedExpeseCategory[expenseCategories],
+                          title: Text(category),
+                          value: selectedCategories[category], 
                           onChanged: (value) {
                             setModalState(() {
-                              selectedExpeseCategory[expenseCategories] =
-                                  value!;
+                              selectedCategories[category] = value!;
                             });
                           },
                         );
@@ -101,6 +125,9 @@ class HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: () {
+                        double expenseAmount =
+                            double.tryParse(expenses.text) ?? 0.0;
+                        expenseUpdate(selectedCategories, expenseAmount); 
                         Navigator.pop(context);
                       },
                       child: const Text('Save'),
@@ -116,25 +143,62 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  Widget build(BuildContext context){ 
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Home')),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: incomePopUp,
-              child: const Text('Add Income'),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20.0),
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: 1000, 
+                  barGroups: [
+                    BarChartGroupData(
+                      x: 0, 
+                      barRods: [
+                        BarChartRodData(
+                          toY: totalIncome, 
+                          color: Colors.green,
+                          width: 20, 
+                        ),
+                      ],),
+                      for (var category in expenseNames.keys) 
+                        BarChartGroupData(
+                          x: expenseNames.keys.toList().indexOf(category) + 1,
+                          barRods: [
+                            BarChartRodData(
+                              toY: expenseNames[category]!,
+                              color: Colors.red, 
+                              width: 20, 
+                            ),
+                          ],
+                        ),
+                  ],
+                ),
+              ),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: expensePopUp,
-              child: const Text('Add Expense'),
-            )
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: incomePopUp,
+                  child: const Text('Add Income'),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: expensePopUp,
+                  child: const Text('Add Expense'),
+                )
+              ],
+            ),
           ],
         ),
       ),
     );
   }
 }
+
