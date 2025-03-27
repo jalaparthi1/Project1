@@ -25,6 +25,7 @@ class HomeScreenState extends State<HomeScreen> {
     'Shopping': 0.0,
   };
   double totalIncome = 0.0;
+  double totalExpenses = 0.0;
 
   void incomeUpdate(double incomeAmt) {
     setState(() {
@@ -36,9 +37,12 @@ class HomeScreenState extends State<HomeScreen> {
     setState(() {
       selectedCategories.forEach((category, isSelected) {
         if (isSelected) {
-          expenseNames[category] = (expenseNames[category] ?? 0.0) + expenseAmt; 
+          expenseNames[category] = (expenseNames[category] ?? 0.0) + expenseAmt;
         }
       });
+      
+      // Recalculate total expenses
+      totalExpenses = expenseNames.values.reduce((a, b) => a + b);
     });
   }
 
@@ -62,6 +66,10 @@ class HomeScreenState extends State<HomeScreen> {
                       keyboardType: TextInputType.number,
                       decoration:
                           const InputDecoration(labelText: "Income Amount"),
+                      onChanged: (value) {
+                        double incomeAmount = double.tryParse(value) ?? 0.0;
+                        incomeUpdate(incomeAmount);
+                      },
                     ),
                     const SizedBox(height: 10),
                     ElevatedButton(
@@ -77,18 +85,21 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void expensePopUp() {
+    // Create a mutable state for selected categories
+    Map<String, bool> selectedCategories = {
+      'Entertainment': false,
+      'Dining': false,
+      'Grocery': false,
+      'Rent/Utilities': false,
+      'Shopping': false,
+    };
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            Map<String, bool> selectedCategories = {
-              'Entertainment': false,
-              'Grocery': false,
-              'Rent/Utilities': false,
-              'Shopping': false,
-            };
             return Padding(
               padding: MediaQuery.of(context).viewInsets,
               child: Container(
@@ -127,8 +138,20 @@ class HomeScreenState extends State<HomeScreen> {
                       onPressed: () {
                         double expenseAmount =
                             double.tryParse(expenses.text) ?? 0.0;
-                        expenseUpdate(selectedCategories, expenseAmount); 
-                        Navigator.pop(context);
+                        
+                        // Check if at least one category is selected
+                        bool categorySelected = 
+                            selectedCategories.values.any((isSelected) => isSelected);
+                        
+                        if (categorySelected) {
+                          expenseUpdate(selectedCategories, expenseAmount); 
+                          Navigator.pop(context);
+                        } else {
+                          // Show an error if no category is selected
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Please select at least one category')),
+                          );
+                        }
                       },
                       child: const Text('Save'),
                     ),
@@ -142,6 +165,34 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  List<BarChartGroupData> barGroups() {
+    List<BarChartGroupData> groups = [
+      // Income bar
+      BarChartGroupData(
+        x: 0, 
+        barRods: [
+          BarChartRodData(
+            toY: totalIncome, 
+            color: Colors.green,
+            width: 20, 
+          ),
+        ],
+      ),
+      // Collective Expenses bar
+      BarChartGroupData(
+        x: 1,
+        barRods: [
+          BarChartRodData(
+            toY: totalExpenses,
+            color: Colors.red, 
+            width: 20, 
+          ),
+        ],
+      ),
+    ];
+    return groups;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,32 +203,27 @@ class HomeScreenState extends State<HomeScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
-              child: BarChart(
-                BarChartData(
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: 1000, 
-                  barGroups: [
-                    BarChartGroupData(
-                      x: 0, 
-                      barRods: [
-                        BarChartRodData(
-                          toY: totalIncome, 
-                          color: Colors.green,
-                          width: 20, 
+              child: SizedBox(
+                height: 300, // Explicit height
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: 1000, 
+                    barGroups: barGroups(),
+                    titlesData: FlTitlesData(
+                      show: true,
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          getTitlesWidget: (double value, TitleMeta meta) {
+                            const titles = ['Income', 'Expenses'];
+                            final index = value.toInt();
+                            return Text(titles[index]);
+                          },
                         ),
-                      ],),
-                      for (var category in expenseNames.keys) 
-                        BarChartGroupData(
-                          x: expenseNames.keys.toList().indexOf(category) + 1,
-                          barRods: [
-                            BarChartRodData(
-                              toY: expenseNames[category]!,
-                              color: Colors.red, 
-                              width: 20, 
-                            ),
-                          ],
-                        ),
-                  ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -201,4 +247,3 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
