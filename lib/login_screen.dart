@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_1/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'account_setup_screen.dart';
 
@@ -34,6 +35,8 @@ class LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login Successful')),
       );
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => HomeScreen()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Incorrect Username of Password')),
@@ -54,12 +57,20 @@ class LoginScreenState extends State<LoginScreen> {
             children: [
               TextField(
                 controller: username,
-                decoration: const InputDecoration(labelText: "Username", border: OutlineInputBorder(), alignLabelWithHint: true,),
+                decoration: const InputDecoration(
+                  labelText: "Username",
+                  border: OutlineInputBorder(),
+                  alignLabelWithHint: true,
+                ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: password,
-                decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder(), alignLabelWithHint: true,),
+                decoration: const InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                  alignLabelWithHint: true,
+                ),
                 obscureText: true,
               ),
               const SizedBox(height: 20),
