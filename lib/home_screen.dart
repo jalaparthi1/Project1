@@ -302,16 +302,12 @@ class HomeScreenState extends State<HomeScreen> {
                   child: const Text('Add Expense'),
                 ),
                 SizedBox(width: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ProfileScreen()),
-                    );
-                  },
-                  child: const Text('Profile Settings'),
-                ),
-                SizedBox(width: 20),
+              ],
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -323,7 +319,7 @@ class HomeScreenState extends State<HomeScreen> {
                   },
                   child: const Text('Manage Budget'),
                 ),
-                SizedBox(width: 20),
+                SizedBox(width: 20), 
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -333,6 +329,16 @@ class HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   child: const Text('Financial Statement'),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfileScreen()),
+                    );
+                  },
+                  child: const Text('Profile Settings'),
                 ),
               ],
             ),
