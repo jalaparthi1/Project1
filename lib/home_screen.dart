@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'profile_settings_screen.dart'; // Import the ProfileScreen
-import 'Budget_Saving_Screen.dart'; // Import the BudgetScreen
-import 'financial_statement_screen.dart'; // Import the FinancialStatementScreen
+import 'profile_settings_screen.dart';
+import 'Budget_Saving_Screen.dart';
+import 'financial_statement_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -29,8 +30,8 @@ class HomeScreenState extends State<HomeScreen> {
   };
   double totalIncome = 0.0;
   double totalExpenses = 0.0;
+  DateTime selectedDate = DateTime.now();
 
-  // Load budget and spent data from SharedPreferences
   Future<void> loadBudgetData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -47,10 +48,34 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    loadBudgetData(); // Load the budget data when the home screen is loaded
+    loadBudgetData();
   }
 
-  void incomeUpdate(double incomeAmt) {
+  Future<void> datePicker(BuildContext context, bool isIncome) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2040),
+    );
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+      if (isIncome) {
+        incomePopUp();
+      } else {
+        expensePopUp();
+      }
+    }
+  }
+
+  void incomeUpdate(double incomeAmt) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String date = DateFormat('yyyy-MM-dd').format(selectedDate);
+    final String incomeKey = 'income_$date';
+    await prefs.setDouble(incomeKey, incomeAmt);
+    await displayTransaction(date, 'Income: \$${incomeAmt.toStringAsFixed(2)}');
     setState(() {
       totalIncome = totalIncome + incomeAmt;
     });
@@ -59,18 +84,30 @@ class HomeScreenState extends State<HomeScreen> {
   void expenseUpdate(
       Map<String, bool> selectedCategories, double expenseAmt) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String date = DateFormat('yyyy-MM-dd').format(selectedDate);
+    for (var entry in selectedCategories.entries) {
+      if (entry.value) {
+        final String expenseKey = 'expense_${entry.key}_$date';
+        await prefs.setDouble(expenseKey, expenseAmt);
+        await displayTransaction(
+            date, 'Expense (${entry.key}): \$${expenseAmt.toStringAsFixed(2)}');
+        setState(() {
+          expenseNames[entry.key] =
+              (expenseNames[entry.key] ?? 0.0) + expenseAmt;
+        });
+      }
+    }
     setState(() {
-      selectedCategories.forEach((category, isSelected) {
-        if (isSelected) {
-          expenseNames[category] = (expenseNames[category] ?? 0.0) + expenseAmt;
-          // Save the updated spent amount in SharedPreferences
-          prefs.setDouble('${category}Spent', expenseNames[category]!);
-        }
-      });
-
-      // Recalculate total expenses
-      totalExpenses = expenseNames.values.reduce((a, b) => a + b);
+      totalExpenses = expenseNames.values.reduce((a, b) => a + b); 
     });
+  }
+
+  Future<void> displayTransaction(String date, String transaction) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String transactionKey = 'transaction_$date';
+    List<String> transactions = prefs.getStringList(transactionKey) ?? [];
+    transactions.add(transaction);
+    await prefs.setStringList(transactionKey, transactions);
   }
 
   void incomePopUp() {
@@ -85,9 +122,10 @@ class HomeScreenState extends State<HomeScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text("Income Amount: ",
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                 Text(
+                    "Income Amount for ${DateFormat('yyyy-MM-dd').format(selectedDate)}:",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold) 
+                  ),
                 TextField(
                   controller: income,
                   keyboardType: TextInputType.number,
@@ -134,10 +172,9 @@ class HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Expense Details: ',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                     Text(
+                      "Expense Amount for ${DateFormat('yyyy-MM-dd').format(selectedDate)}:",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
                     ),
                     TextField(
                       controller: expenses,

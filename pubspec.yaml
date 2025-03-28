@@ -13,6 +13,7 @@ dependencies:
   shared_preferences: ^2.2.2
   fl_chart: ^0.70.2
   table_calendar: ^3.0.0  # Added the table_calendar package
+  intl: ^0.18.0
 
   cupertino_icons: ^1.0.8
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class FinancialStatementScreen extends StatefulWidget {
   @override
@@ -9,10 +11,39 @@ class FinancialStatementScreen extends StatefulWidget {
 
 class _FinancialStatementScreenState extends State<FinancialStatementScreen> {
   DateTime _selectedDay = DateTime.now();
-  Map<DateTime, List<String>> transactions = {
-    DateTime(2025, 3, 20): ["Salary: +\$2000", "Groceries: -\$150"],
-    DateTime(2025, 3, 21): ["Electricity Bill: -\$80"],
-  };
+  Map<String, List<String>> transactions = {};
+
+  @override
+  void initState() {
+    super.initState();
+    loadTransactions();
+  }
+
+  Future<void> loadTransactions() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      transactions.clear();
+      for (var key in prefs.getKeys()) {
+        if (key.startsWith('transaction_')) {
+          List<String> listOfTransactions = prefs.getStringList(key) ?? [];
+          transactions[key] = listOfTransactions;
+        }
+      }
+    });
+  }
+
+  List<String> getTransactionsForSelectedDate() {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
+    List<String> selectedDateTransactions = [];
+
+    transactions.forEach((key, value) {
+      if (key.contains(formattedDate)) {
+        selectedDateTransactions.addAll(value);
+      }
+    });
+
+    return selectedDateTransactions;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +53,15 @@ class _FinancialStatementScreenState extends State<FinancialStatementScreen> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(
-                context); // This will take the user back to the previous screen
+            Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: loadTransactions,
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -40,9 +76,16 @@ class _FinancialStatementScreenState extends State<FinancialStatementScreen> {
               });
             },
           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              'Transactions for ${DateFormat('yyyy-MM-dd').format(_selectedDay)}',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
           Expanded(
             child: ListView(
-              children: (transactions[_selectedDay] ?? [])
+              children: getTransactionsForSelectedDate()
                   .map((transaction) => ListTile(title: Text(transaction)))
                   .toList(),
             ),
