@@ -8,20 +8,24 @@ class AccountSetupScreen extends StatefulWidget {
 }
 
 class AccountSetupScreenState extends State<AccountSetupScreen> {
-  final TextEditingController firstAndLastName = TextEditingController();
-  final TextEditingController username = TextEditingController();
-  final TextEditingController password = TextEditingController();
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
-  Future<void> savedDetails() async {
+  // Save user details to SharedPreferences
+  Future<void> saveDetails() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('First and Last Name', firstAndLastName.text);
-    await prefs.setString('username', username.text);
-    await prefs.setString('password', password.text);
+
+    // Save username and full name
+    await prefs.setString('fullName', fullNameController.text);
+    await prefs.setString('username', usernameController.text);
+    await prefs.setString('password', passwordController.text);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Account Made')),
+      const SnackBar(content: Text('Account Created')),
     );
 
+    // Navigate to Login screen after saving details
     Future.delayed(const Duration(seconds: 1), () {
       Navigator.pushReplacement(
         context,
@@ -34,7 +38,7 @@ class AccountSetupScreenState extends State<AccountSetupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Make Your Account'),
+        title: const Text('Create Your Account'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -42,29 +46,38 @@ class AccountSetupScreenState extends State<AccountSetupScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: firstAndLastName,
-              decoration: const InputDecoration(labelText: 'Full Name', border: OutlineInputBorder(), alignLabelWithHint: true,),
+              controller: fullNameController,
+              decoration: const InputDecoration(
+                labelText: 'Full Name',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 10),
             TextField(
-              controller: username,
-              decoration: const InputDecoration(labelText: 'Username', border: OutlineInputBorder(), alignLabelWithHint: true,),
+              controller: usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 10),
             TextField(
-              controller: password,
-              decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder(), alignLabelWithHint: true,),
+              controller: passwordController,
               obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: savedDetails, 
-              child: const Text('Enter'),
+              onPressed: saveDetails,
+              child: const Text('Create Account'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.pop(context); // Navigate back to login screen
               },
               child: const Text('Login Now'),
             ),

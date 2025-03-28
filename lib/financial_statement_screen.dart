@@ -17,7 +17,16 @@ class _FinancialStatementScreenState extends State<FinancialStatementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Financial Statement")),
+      appBar: AppBar(
+        title: Text("Financial Statement"),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(
+                context); // This will take the user back to the previous screen
+          },
+        ),
+      ),
       body: Column(
         children: [
           TableCalendar(

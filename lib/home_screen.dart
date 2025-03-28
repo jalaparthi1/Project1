@@ -1,6 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'profile_settings_screen.dart'; // Import the ProfileScreen
+import 'Budget_Saving_Screen.dart'; // Import the BudgetScreen
+import 'financial_statement_screen.dart'; // Import the FinancialStatementScreen
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -17,7 +20,7 @@ class HomeScreenState extends State<HomeScreen> {
     'Rent/Utilities',
     'Shopping'
   ];
-  final Map<String, double> expenseNames = { 
+  final Map<String, double> expenseNames = {
     'Entertainment': 0.0,
     'Dining': 0.0,
     'Grocery': 0.0,
@@ -27,20 +30,44 @@ class HomeScreenState extends State<HomeScreen> {
   double totalIncome = 0.0;
   double totalExpenses = 0.0;
 
+  // Load budget and spent data from SharedPreferences
+  Future<void> loadBudgetData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      expenseNames['Entertainment'] =
+          prefs.getDouble('EntertainmentSpent') ?? 0.0;
+      expenseNames['Dining'] = prefs.getDouble('DiningSpent') ?? 0.0;
+      expenseNames['Grocery'] = prefs.getDouble('GrocerySpent') ?? 0.0;
+      expenseNames['Rent/Utilities'] = prefs.getDouble('RentSpent') ?? 0.0;
+      expenseNames['Shopping'] = prefs.getDouble('ShoppingSpent') ?? 0.0;
+      totalExpenses = expenseNames.values.reduce((a, b) => a + b);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadBudgetData(); // Load the budget data when the home screen is loaded
+  }
+
   void incomeUpdate(double incomeAmt) {
     setState(() {
       totalIncome = totalIncome + incomeAmt;
     });
   }
 
-  void expenseUpdate(Map<String, bool> selectedCategories, double expenseAmt) {
+  void expenseUpdate(
+      Map<String, bool> selectedCategories, double expenseAmt) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       selectedCategories.forEach((category, isSelected) {
         if (isSelected) {
           expenseNames[category] = (expenseNames[category] ?? 0.0) + expenseAmt;
+          // Save the updated spent amount in SharedPreferences
+          prefs.setDouble('${category}Spent', expenseNames[category]!);
         }
       });
-      
+
       // Recalculate total expenses
       totalExpenses = expenseNames.values.reduce((a, b) => a + b);
     });
@@ -48,44 +75,44 @@ class HomeScreenState extends State<HomeScreen> {
 
   void incomePopUp() {
     showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (context) {
-          return Padding(
-            padding: MediaQuery.of(context).viewInsets,
-            child: Container(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text("Income Amount: ",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
-                    TextField(
-                      controller: income,
-                      keyboardType: TextInputType.number,
-                      decoration:
-                          const InputDecoration(labelText: "Income Amount"),
-                      onChanged: (value) {
-                        double incomeAmount = double.tryParse(value) ?? 0.0;
-                        incomeUpdate(incomeAmount);
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text("Save"),
-                    ),
-                  ],
-                )),
-          );
-        });
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Padding(
+          padding: MediaQuery.of(context).viewInsets,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text("Income Amount: ",
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                TextField(
+                  controller: income,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: "Income Amount"),
+                  onChanged: (value) {
+                    double incomeAmount = double.tryParse(value) ?? 0.0;
+                    incomeUpdate(incomeAmount);
+                  },
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Save"),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void expensePopUp() {
-    // Create a mutable state for selected categories
     Map<String, bool> selectedCategories = {
       'Entertainment': false,
       'Dining': false,
@@ -124,7 +151,7 @@ class HomeScreenState extends State<HomeScreen> {
                       children: expenseCategories.map((category) {
                         return CheckboxListTile(
                           title: Text(category),
-                          value: selectedCategories[category], 
+                          value: selectedCategories[category],
                           onChanged: (value) {
                             setModalState(() {
                               selectedCategories[category] = value!;
@@ -138,18 +165,18 @@ class HomeScreenState extends State<HomeScreen> {
                       onPressed: () {
                         double expenseAmount =
                             double.tryParse(expenses.text) ?? 0.0;
-                        
-                        // Check if at least one category is selected
-                        bool categorySelected = 
-                            selectedCategories.values.any((isSelected) => isSelected);
-                        
+
+                        bool categorySelected = selectedCategories.values
+                            .any((isSelected) => isSelected);
+
                         if (categorySelected) {
-                          expenseUpdate(selectedCategories, expenseAmount); 
+                          expenseUpdate(selectedCategories, expenseAmount);
                           Navigator.pop(context);
                         } else {
-                          // Show an error if no category is selected
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Please select at least one category')),
+                            SnackBar(
+                                content: Text(
+                                    'Please select at least one category')),
                           );
                         }
                       },
@@ -167,25 +194,23 @@ class HomeScreenState extends State<HomeScreen> {
 
   List<BarChartGroupData> barGroups() {
     List<BarChartGroupData> groups = [
-      // Income bar
       BarChartGroupData(
-        x: 0, 
+        x: 0,
         barRods: [
           BarChartRodData(
-            toY: totalIncome, 
+            toY: totalIncome,
             color: Colors.green,
-            width: 20, 
+            width: 20,
           ),
         ],
       ),
-      // Collective Expenses bar
       BarChartGroupData(
         x: 1,
         barRods: [
           BarChartRodData(
             toY: totalExpenses,
-            color: Colors.red, 
-            width: 20, 
+            color: Colors.red,
+            width: 20,
           ),
         ],
       ),
@@ -204,11 +229,11 @@ class HomeScreenState extends State<HomeScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               child: SizedBox(
-                height: 300, // Explicit height
+                height: 300,
                 child: BarChart(
                   BarChartData(
                     alignment: BarChartAlignment.spaceAround,
-                    maxY: 1000, 
+                    maxY: 1000,
                     barGroups: barGroups(),
                     titlesData: FlTitlesData(
                       show: true,
@@ -238,7 +263,40 @@ class HomeScreenState extends State<HomeScreen> {
                 ElevatedButton(
                   onPressed: expensePopUp,
                   child: const Text('Add Expense'),
-                )
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ProfileScreen()),
+                    );
+                  },
+                  child: const Text('Profile Settings'),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => BudgetScreen(
+                              expenseCategories: expenseCategories)),
+                    );
+                  },
+                  child: const Text('Manage Budget'),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => FinancialStatementScreen()),
+                    );
+                  },
+                  child: const Text('Financial Statement'),
+                ),
               ],
             ),
           ],
