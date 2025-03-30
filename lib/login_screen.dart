@@ -97,7 +97,7 @@ class LoginScreenState extends State<LoginScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text("Enter",
+              child: const Text("Login", // Changed text to "Login"
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
             const SizedBox(height: 20),

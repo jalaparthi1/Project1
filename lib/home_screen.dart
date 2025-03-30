@@ -351,8 +351,10 @@ class HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => BudgetScreen(
-                              expenseCategories: expenseCategories)),
+                        builder: (context) => BudgetScreen(
+                          expenseCategories: expenseCategories,
+                        ),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -370,7 +372,13 @@ class HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => FinancialStatementScreen()),
+                        builder: (context) => FinancialStatementScreen(
+                          expenseCategories: expenseCategories,
+                          expenseData: expenseNames,
+                          totalIncome: totalIncome, // Pass total income
+                          totalExpenses: totalExpenses, // Pass total expenses
+                        ),
+                      ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -395,7 +403,7 @@ class HomeScreenState extends State<HomeScreen> {
           );
         },
         backgroundColor: Colors.blue,
-        child: Icon(Icons.settings),
+        child: const Icon(Icons.person),
       ),
     );
   }
