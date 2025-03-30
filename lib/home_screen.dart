@@ -130,24 +130,29 @@ class HomeScreenState extends State<HomeScreen> {
                   controller: income,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(labelText: "Income Amount"),
-                  onChanged: (value) {
-                    double incomeAmount = double.tryParse(value) ?? 0.0;
-                    incomeUpdate(incomeAmount);
-                  },
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    double incomeAmount = double.tryParse(income.text) ?? 0.0;
+                    if (incomeAmount > 0) {
+                      incomeUpdate(
+                          incomeAmount); // Update income when user clicks Save
+                      Navigator.pop(context); // Close the modal
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Please enter a valid income amount"),
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green, // Set background color here
+                    backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(15), // Rounded corners
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12), // Padding inside button
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
                   child: const Text("Save"),
                 ),
@@ -315,13 +320,11 @@ class HomeScreenState extends State<HomeScreen> {
                 ElevatedButton(
                   onPressed: incomePopUp,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green, // Set background color here
+                    backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(15), // Rounded corners
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12), // Padding inside button
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
                   child: const Text('Add Income'),
                 ),
@@ -329,13 +332,11 @@ class HomeScreenState extends State<HomeScreen> {
                 ElevatedButton(
                   onPressed: expensePopUp,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, // Set background color here
+                    backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(15), // Rounded corners
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12), // Padding inside button
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
                   child: const Text('Add Expense'),
                 ),
@@ -355,13 +356,11 @@ class HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Set background color here
+                    backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(15), // Rounded corners
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12), // Padding inside button
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
                   child: const Text('Manage Budget'),
                 ),
@@ -375,13 +374,11 @@ class HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Set background color here
+                    backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(15), // Rounded corners
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12), // Padding inside button
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   ),
                   child: const Text('Financial Statement'),
                 ),
@@ -397,7 +394,7 @@ class HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(builder: (context) => ProfileScreen()),
           );
         },
-        backgroundColor: Colors.blue, // Color of the icon
+        backgroundColor: Colors.blue,
         child: Icon(Icons.settings),
       ),
     );

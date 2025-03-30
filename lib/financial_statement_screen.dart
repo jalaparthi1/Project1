@@ -19,6 +19,7 @@ class _FinancialStatementScreenState extends State<FinancialStatementScreen> {
     loadTransactions();
   }
 
+  // Function to load transactions from SharedPreferences
   Future<void> loadTransactions() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -32,6 +33,7 @@ class _FinancialStatementScreenState extends State<FinancialStatementScreen> {
     });
   }
 
+  // Function to get transactions for the selected date
   List<String> getTransactionsForSelectedDate() {
     String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
     List<String> selectedDateTransactions = [];
@@ -43,6 +45,28 @@ class _FinancialStatementScreenState extends State<FinancialStatementScreen> {
     });
 
     return selectedDateTransactions;
+  }
+
+  // Function to add transaction to SharedPreferences
+  Future<void> addTransaction(String transaction) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Get formatted date
+    String formattedDate = DateFormat('yyyy-MM-dd').format(_selectedDay);
+
+    // Get existing transactions for that date
+    String transactionKey = 'transaction_$formattedDate';
+    List<String> existingTransactions =
+        prefs.getStringList(transactionKey) ?? [];
+
+    // Add new transaction
+    existingTransactions.add(transaction);
+
+    // Save the updated list of transactions
+    await prefs.setStringList(transactionKey, existingTransactions);
+
+    // Reload transactions
+    loadTransactions();
   }
 
   @override
