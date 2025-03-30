@@ -3,8 +3,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_settings_screen.dart';
-import 'Budget_Saving_Screen.dart';
+import 'BudgetScreen.dart';
 import 'financial_statement_screen.dart';
+import 'Savings_investments_Screen.dart'; // Import the SavingsScreen
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -124,21 +125,26 @@ class HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                     "Income Amount for ${DateFormat('yyyy-MM-dd').format(selectedDate)}:",
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black)),
+                SizedBox(height: 10),
                 TextField(
                   controller: income,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: "Income Amount"),
+                  decoration: const InputDecoration(
+                    labelText: "Enter Income",
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     double incomeAmount = double.tryParse(income.text) ?? 0.0;
                     if (incomeAmount > 0) {
-                      incomeUpdate(
-                          incomeAmount); // Update income when user clicks Save
-                      Navigator.pop(context); // Close the modal
+                      incomeUpdate(incomeAmount);
+                      Navigator.pop(context);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -150,11 +156,11 @@ class HomeScreenState extends State<HomeScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                  child: const Text("Save"),
+                  child: const Text("Save", style: TextStyle(fontSize: 18)),
                 ),
               ],
             ),
@@ -189,15 +195,24 @@ class HomeScreenState extends State<HomeScreen> {
                     Text(
                         "Expense Amount for ${DateFormat('yyyy-MM-dd').format(selectedDate)}:",
                         style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black)),
+                    SizedBox(height: 10),
                     TextField(
                       controller: expenses,
                       keyboardType: TextInputType.number,
-                      decoration:
-                          const InputDecoration(labelText: "Expense Amount"),
+                      decoration: const InputDecoration(
+                        labelText: "Enter Expense",
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                     SizedBox(height: 10),
-                    const Text('Categories'),
+                    const Text(
+                      'Select Categories:',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                    ),
                     Column(
                       children: expenseCategories.map((category) {
                         return CheckboxListTile(
@@ -211,7 +226,7 @@ class HomeScreenState extends State<HomeScreen> {
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
                         double expenseAmount =
@@ -226,23 +241,24 @@ class HomeScreenState extends State<HomeScreen> {
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                                content: Text(
-                                    'Please select at least one category')),
+                              content:
+                                  Text('Please select at least one category'),
+                            ),
                           );
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Colors.red, // Set background color here
+                        backgroundColor: Colors.red,
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(15), // Rounded corners
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12), // Padding inside button
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                       ),
-                      child: const Text('Save'),
+                      child: const Text(
+                        'Save Expense',
+                        style: TextStyle(fontSize: 18),
+                      ),
                     ),
                   ],
                 ),
@@ -283,7 +299,12 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
+      appBar: AppBar(
+        title: const Text('Home', style: TextStyle(fontSize: 24)),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        elevation: 5,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -305,7 +326,9 @@ class HomeScreenState extends State<HomeScreen> {
                           getTitlesWidget: (double value, TitleMeta meta) {
                             const titles = ['Income', 'Expenses'];
                             final index = value.toInt();
-                            return Text(titles[index]);
+                            return Text(titles[index],
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w500));
                           },
                         ),
                       ),
@@ -322,11 +345,12 @@ class HomeScreenState extends State<HomeScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                  child: const Text('Add Income'),
+                  child:
+                      const Text('Add Income', style: TextStyle(fontSize: 18)),
                 ),
                 SizedBox(width: 20),
                 ElevatedButton(
@@ -334,11 +358,12 @@ class HomeScreenState extends State<HomeScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                  child: const Text('Add Expense'),
+                  child:
+                      const Text('Add Expense', style: TextStyle(fontSize: 18)),
                 ),
               ],
             ),
@@ -360,11 +385,12 @@ class HomeScreenState extends State<HomeScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                  child: const Text('Manage Budget'),
+                  child: const Text('Manage Budget',
+                      style: TextStyle(fontSize: 18)),
                 ),
                 SizedBox(width: 20),
                 ElevatedButton(
@@ -375,8 +401,8 @@ class HomeScreenState extends State<HomeScreen> {
                         builder: (context) => FinancialStatementScreen(
                           expenseCategories: expenseCategories,
                           expenseData: expenseNames,
-                          totalIncome: totalIncome, // Pass total income
-                          totalExpenses: totalExpenses, // Pass total expenses
+                          totalIncome: totalIncome,
+                          totalExpenses: totalExpenses,
                         ),
                       ),
                     );
@@ -384,11 +410,34 @@ class HomeScreenState extends State<HomeScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                  child: const Text('Financial Statement'),
+                  child: const Text('Financial Statement',
+                      style: TextStyle(fontSize: 18)),
+                ),
+                SizedBox(width: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SavingsScreen(
+                          income: totalIncome,
+                          expenditure: totalExpenses,
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  ),
+                  child: const Text('Savings', style: TextStyle(fontSize: 18)),
                 ),
               ],
             ),

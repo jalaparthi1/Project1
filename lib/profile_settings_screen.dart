@@ -17,7 +17,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
-  bool isEditingProfile = false; // Track if the profile is being edited
+  bool isEditingProfile = false;
 
   @override
   void initState() {
@@ -25,7 +25,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     loadProfileData();
   }
 
-  // Load saved profile data
   Future<void> loadProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -36,7 +35,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  // Save updated profile data
   Future<void> saveProfileData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('username', usernameController.text);
@@ -48,95 +46,142 @@ class _ProfileScreenState extends State<ProfileScreen> {
       const SnackBar(content: Text('Profile Updated')),
     );
 
-    // Reload profile data
     loadProfileData();
     setState(() {
-      isEditingProfile = false; // Disable editing after saving
+      isEditingProfile = false;
     });
   }
 
-  // Change password verification
   void changePassword() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Change Password'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: currentPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Current Password',
-                  icon: Icon(Icons.lock),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: newPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'New Password',
-                  icon: Icon(Icons.lock),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: confirmPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Confirm New Password',
-                  icon: Icon(Icons.lock),
-                ),
-              ),
-            ],
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                // Get saved password from SharedPreferences
-                final prefs = await SharedPreferences.getInstance();
-                String savedPassword = prefs.getString('password') ?? '';
+          elevation: 10,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Change Password',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: currentPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Current Password',
+                    icon: Icon(Icons.lock),
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.deepPurpleAccent),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                TextField(
+                  controller: newPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'New Password',
+                    icon: Icon(Icons.lock),
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.deepPurpleAccent),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                TextField(
+                  controller: confirmPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Confirm New Password',
+                    icon: Icon(Icons.lock),
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.deepPurpleAccent),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.redAccent,
+                        ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final prefs = await SharedPreferences.getInstance();
+                        String savedPassword =
+                            prefs.getString('password') ?? '';
 
-                // Verify the current password
-                if (currentPasswordController.text == savedPassword) {
-                  if (newPasswordController.text ==
-                      confirmPasswordController.text) {
-                    // Update password in SharedPreferences
-                    await prefs.setString(
-                        'password', newPasswordController.text);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Password Changed Successfully')),
-                    );
-                    Navigator.pop(context);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('New passwords do not match')),
-                    );
-                  }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Incorrect current password')),
-                  );
-                }
-              },
-              child: const Text('Save'),
+                        if (currentPasswordController.text == savedPassword) {
+                          if (newPasswordController.text ==
+                              confirmPasswordController.text) {
+                            await prefs.setString(
+                                'password', newPasswordController.text);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content:
+                                      Text('Password Changed Successfully')),
+                            );
+                            Navigator.pop(context);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text('New passwords do not match')),
+                            );
+                          }
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Incorrect current password')),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Colors.deepPurpleAccent, // Instead of primary
+                        foregroundColor: Colors.white, // Corrected usage
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 25),
+                      ),
+                      child: const Text('Save'),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );
   }
 
-  // Show update profile dialog
   void updateProfile() {
     showDialog(
       context: context,
@@ -188,12 +233,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           saveProfileData();
                         } else {
                           setState(() {
-                            isEditingProfile = true; // Enable editing
+                            isEditingProfile = true;
                           });
                         }
                       },
+                      style: ElevatedButton.styleFrom(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 14, horizontal: 35),
+                        backgroundColor: Colors.blueAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        elevation: 5,
+                      ),
                       child: Text(
-                          isEditingProfile ? 'Save Changes' : 'Edit Profile'),
+                          isEditingProfile ? 'Save Changes' : 'Edit Profile',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(height: 10),
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 14, horizontal: 35),
+                        side: BorderSide(width: 2, color: Colors.blue),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      child: const Text('Cancel'),
                     ),
                   ],
                 ),
@@ -208,75 +279,122 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile Settings')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile Info Card
-            Card(
-              elevation: 4.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(
+        title: const Text('Profile Settings'),
+        backgroundColor: Colors.deepPurpleAccent,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              // Profile Info Section
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.purple[50],
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Profile Logo (Circle with Icon)
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.deepPurpleAccent,
+                      child: Icon(
+                        Icons.person,
+                        size: 50,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
                     Text(
-                      'Username: ${usernameController.text}',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      'Hi, ${fullNameController.text.isEmpty ? 'User' : fullNameController.text}!',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Row(
+                      children: [
+                        Icon(Icons.person, color: Colors.deepPurpleAccent),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Username: ${usernameController.text}',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      'Full Name: ${fullNameController.text}',
-                      style: TextStyle(fontSize: 18),
+                    Row(
+                      children: [
+                        Icon(Icons.email, color: Colors.deepPurpleAccent),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Email: ${emailController.text.isEmpty ? 'Not Set' : emailController.text}',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      'Email: ${emailController.text.isEmpty ? 'Not Set' : emailController.text}',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Mobile: ${mobileController.text.isEmpty ? 'Not Set' : mobileController.text}',
-                      style: TextStyle(fontSize: 18),
+                    Row(
+                      children: [
+                        Icon(Icons.phone, color: Colors.deepPurpleAccent),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Mobile: ${mobileController.text.isEmpty ? 'Not Set' : mobileController.text}',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 30),
 
-            // Edit Profile Button
-            ElevatedButton(
-              onPressed: updateProfile,
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 25),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+              // Edit Profile Button
+              ElevatedButton(
+                onPressed: updateProfile,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 35),
+                  backgroundColor: Colors.blueAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: const Text(
+                  'Edit Profile',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
-              child: Text(isEditingProfile ? 'Save Changes' : 'Edit Profile'),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            // Change Password Button
-            OutlinedButton(
-              onPressed: changePassword,
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 25),
-                side: BorderSide(width: 2, color: Colors.blue),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+              // Change Password Button
+              OutlinedButton(
+                onPressed: changePassword,
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 35),
+                  side: BorderSide(width: 2, color: Colors.blue),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: const Text(
+                  'Change Password',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
-              child: const Text('Change Password'),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
