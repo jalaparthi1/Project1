@@ -15,6 +15,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
   final TextEditingController spentController = TextEditingController();
   String? selectedCategory;
   List<Map<String, dynamic>> budgets = [];
+  String errorMessage = '';
 
   // Function to add or update a budget
   void addOrUpdateBudget({int? index}) {
@@ -44,6 +45,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
         selectedCategory = null;
         budgetController.clear();
         spentController.clear();
+        errorMessage = ''; // Reset error message
+      });
+    } else {
+      setState(() {
+        errorMessage = 'Please enter valid values for all fields.';
       });
     }
   }
@@ -80,16 +86,30 @@ class _BudgetScreenState extends State<BudgetScreen> {
                         ))
                     .toList(),
               ),
+              const SizedBox(height: 10),
               TextField(
                 controller: budgetController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Budget Amount'),
+                decoration: const InputDecoration(
+                  labelText: 'Budget Amount',
+                  border: OutlineInputBorder(),
+                ),
               ),
+              const SizedBox(height: 10),
               TextField(
                 controller: spentController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Spent Amount'),
+                decoration: const InputDecoration(
+                  labelText: 'Spent Amount',
+                  border: OutlineInputBorder(),
+                ),
               ),
+              const SizedBox(height: 10),
+              if (errorMessage.isNotEmpty)
+                Text(
+                  errorMessage,
+                  style: TextStyle(color: Colors.red),
+                ),
             ],
           ),
           actions: [
@@ -104,6 +124,11 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 addOrUpdateBudget(index: index);
                 Navigator.pop(context); // Close the dialog after saving
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    Colors.blue, // Correct parameter for background color
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              ),
               child: Text(index != null ? 'Update Budget' : 'Save Budget'),
             ),
           ],
@@ -115,7 +140,20 @@ class _BudgetScreenState extends State<BudgetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Budget Management")),
+      appBar: AppBar(
+        title: const Text("Budget Management"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                // Clear the budget list if needed
+                budgets.clear();
+              });
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -127,11 +165,24 @@ class _BudgetScreenState extends State<BudgetScreen> {
                 itemBuilder: (context, index) {
                   final budget = budgets[index];
                   return Card(
+                    elevation: 3,
                     margin: const EdgeInsets.symmetric(vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                     child: ListTile(
-                      title: Text(budget['category']),
+                      contentPadding: const EdgeInsets.all(16.0),
+                      title: Text(
+                        budget['category'],
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       subtitle: Text(
-                          'Budget: \$${budget['budget']} | Spent: \$${budget['spent']}'),
+                        'Budget: \$${budget['budget']} | Spent: \$${budget['spent']}',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                       trailing: IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () {
@@ -155,6 +206,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
         },
         child: const Icon(Icons.add),
         tooltip: 'Add Budget',
+        backgroundColor: Colors.blue,
       ),
     );
   }

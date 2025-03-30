@@ -68,21 +68,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TextField(
                 controller: currentPasswordController,
                 obscureText: true,
-                decoration:
-                    const InputDecoration(labelText: 'Current Password'),
+                decoration: const InputDecoration(
+                  labelText: 'Current Password',
+                  icon: Icon(Icons.lock),
+                ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: newPasswordController,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'New Password'),
+                decoration: const InputDecoration(
+                  labelText: 'New Password',
+                  icon: Icon(Icons.lock),
+                ),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: confirmPasswordController,
                 obscureText: true,
-                decoration:
-                    const InputDecoration(labelText: 'Confirm New Password'),
+                decoration: const InputDecoration(
+                  labelText: 'Confirm New Password',
+                  icon: Icon(Icons.lock),
+                ),
               ),
             ],
           ),
@@ -145,22 +152,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     TextField(
                       controller: usernameController,
                       enabled: isEditingProfile,
-                      decoration: InputDecoration(labelText: 'Username'),
+                      decoration: InputDecoration(
+                        labelText: 'Username',
+                        icon: Icon(Icons.person),
+                      ),
                     ),
                     TextField(
                       controller: fullNameController,
                       enabled: isEditingProfile,
-                      decoration: InputDecoration(labelText: 'Full Name'),
+                      decoration: InputDecoration(
+                        labelText: 'Full Name',
+                        icon: Icon(Icons.person_outline),
+                      ),
                     ),
                     TextField(
                       controller: emailController,
                       enabled: isEditingProfile,
-                      decoration: InputDecoration(labelText: 'Email'),
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        icon: Icon(Icons.email),
+                      ),
                     ),
                     TextField(
                       controller: mobileController,
                       enabled: isEditingProfile,
-                      decoration: InputDecoration(labelText: 'Mobile'),
+                      decoration: InputDecoration(
+                        labelText: 'Mobile',
+                        icon: Icon(Icons.phone),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
@@ -195,66 +214,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Display Username
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Username: ${usernameController.text}',
-                    style: TextStyle(fontSize: 18),
-                  ),
+            // Profile Info Card
+            Card(
+              elevation: 4.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Username: ${usernameController.text}',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Full Name: ${fullNameController.text}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Email: ${emailController.text.isEmpty ? 'Not Set' : emailController.text}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Mobile: ${mobileController.text.isEmpty ? 'Not Set' : mobileController.text}',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
             const SizedBox(height: 20),
 
-            // Display Full Name
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Full Name: ${fullNameController.text}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Display Email and Mobile (if set)
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Email: ${emailController.text.isEmpty ? 'Not Set' : emailController.text}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Mobile: ${mobileController.text.isEmpty ? 'Not Set' : mobileController.text}',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Update Profile Button
+            // Edit Profile Button
             ElevatedButton(
               onPressed: updateProfile,
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 25),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               child: Text(isEditingProfile ? 'Save Changes' : 'Edit Profile'),
             ),
             const SizedBox(height: 20),
 
             // Change Password Button
-            ElevatedButton(
+            OutlinedButton(
               onPressed: changePassword,
+              style: OutlinedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 25),
+                side: BorderSide(width: 2, color: Colors.blue),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               child: const Text('Change Password'),
             ),
           ],

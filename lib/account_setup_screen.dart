@@ -14,18 +14,28 @@ class AccountSetupScreenState extends State<AccountSetupScreen> {
 
   // Save user details to SharedPreferences
   Future<void> saveDetails() async {
+    if (fullNameController.text.isEmpty ||
+        usernameController.text.isEmpty ||
+        passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Please fill in all fields'),
+            backgroundColor: Colors.red),
+      );
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
 
-    // Save username and full name
     await prefs.setString('fullName', fullNameController.text);
     await prefs.setString('username', usernameController.text);
     await prefs.setString('password', passwordController.text);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Account Created')),
+      const SnackBar(
+          content: Text('Account Created'), backgroundColor: Colors.green),
     );
 
-    // Navigate to Login screen after saving details
     Future.delayed(const Duration(seconds: 1), () {
       Navigator.pushReplacement(
         context,
@@ -39,6 +49,7 @@ class AccountSetupScreenState extends State<AccountSetupScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Your Account'),
+        backgroundColor: Colors.deepPurple,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -47,39 +58,55 @@ class AccountSetupScreenState extends State<AccountSetupScreen> {
           children: [
             TextField(
               controller: fullNameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Full Name',
                 border: OutlineInputBorder(),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
             TextField(
               controller: usernameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Username',
                 border: OutlineInputBorder(),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 15),
             TextField(
               controller: passwordController,
               obscureText: true,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Password',
                 border: OutlineInputBorder(),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: saveDetails,
-              child: const Text('Create Account'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text('Create Account',
+                  style: TextStyle(color: Colors.white)),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+            TextButton(
               onPressed: () {
-                Navigator.pop(context); // Navigate back to login screen
+                Navigator.pop(context);
               },
-              child: const Text('Login Now'),
+              child: const Text('Login Now',
+                  style: TextStyle(fontSize: 16, color: Colors.deepPurple)),
             ),
           ],
         ),

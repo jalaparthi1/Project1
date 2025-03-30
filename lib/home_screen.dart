@@ -98,7 +98,7 @@ class HomeScreenState extends State<HomeScreen> {
       }
     }
     setState(() {
-      totalExpenses = expenseNames.values.reduce((a, b) => a + b); 
+      totalExpenses = expenseNames.values.reduce((a, b) => a + b);
     });
   }
 
@@ -122,10 +122,10 @@ class HomeScreenState extends State<HomeScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                 Text(
+                Text(
                     "Income Amount for ${DateFormat('yyyy-MM-dd').format(selectedDate)}:",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold) 
-                  ),
+                    style:
+                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 TextField(
                   controller: income,
                   keyboardType: TextInputType.number,
@@ -140,6 +140,15 @@ class HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green, // Set background color here
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(15), // Rounded corners
+                    ),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12), // Padding inside button
+                  ),
                   child: const Text("Save"),
                 ),
               ],
@@ -172,10 +181,10 @@ class HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                     Text(
-                      "Expense Amount for ${DateFormat('yyyy-MM-dd').format(selectedDate)}:",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
-                    ),
+                    Text(
+                        "Expense Amount for ${DateFormat('yyyy-MM-dd').format(selectedDate)}:",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold)),
                     TextField(
                       controller: expenses,
                       keyboardType: TextInputType.number,
@@ -217,6 +226,17 @@ class HomeScreenState extends State<HomeScreen> {
                           );
                         }
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Colors.red, // Set background color here
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(15), // Rounded corners
+                        ),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12), // Padding inside button
+                      ),
                       child: const Text('Save'),
                     ),
                   ],
@@ -294,11 +314,29 @@ class HomeScreenState extends State<HomeScreen> {
               children: [
                 ElevatedButton(
                   onPressed: incomePopUp,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green, // Set background color here
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(15), // Rounded corners
+                    ),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12), // Padding inside button
+                  ),
                   child: const Text('Add Income'),
                 ),
                 SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: expensePopUp,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Set background color here
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(15), // Rounded corners
+                    ),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12), // Padding inside button
+                  ),
                   child: const Text('Add Expense'),
                 ),
                 SizedBox(width: 20),
@@ -317,9 +355,18 @@ class HomeScreenState extends State<HomeScreen> {
                               expenseCategories: expenseCategories)),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue, // Set background color here
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(15), // Rounded corners
+                    ),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12), // Padding inside button
+                  ),
                   child: const Text('Manage Budget'),
                 ),
-                SizedBox(width: 20), 
+                SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -328,6 +375,15 @@ class HomeScreenState extends State<HomeScreen> {
                           builder: (context) => FinancialStatementScreen()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue, // Set background color here
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(15), // Rounded corners
+                    ),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12), // Padding inside button
+                  ),
                   child: const Text('Financial Statement'),
                 ),
                 SizedBox(width: 20),
@@ -338,6 +394,15 @@ class HomeScreenState extends State<HomeScreen> {
                       MaterialPageRoute(builder: (context) => ProfileScreen()),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue, // Set background color here
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(15), // Rounded corners
+                    ),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12), // Padding inside button
+                  ),
                   child: const Text('Profile Settings'),
                 ),
               ],
