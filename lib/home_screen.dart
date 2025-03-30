@@ -339,7 +339,6 @@ class HomeScreenState extends State<HomeScreen> {
                   ),
                   child: const Text('Add Expense'),
                 ),
-                SizedBox(width: 20),
               ],
             ),
             SizedBox(height: 20),
@@ -386,29 +385,20 @@ class HomeScreenState extends State<HomeScreen> {
                   ),
                   child: const Text('Financial Statement'),
                 ),
-                SizedBox(width: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ProfileScreen()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Set background color here
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(15), // Rounded corners
-                    ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12), // Padding inside button
-                  ),
-                  child: const Text('Profile Settings'),
-                ),
               ],
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfileScreen()),
+          );
+        },
+        backgroundColor: Colors.blue, // Color of the icon
+        child: Icon(Icons.settings),
       ),
     );
   }
