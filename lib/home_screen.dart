@@ -417,42 +417,49 @@ class HomeScreenState extends State<HomeScreen> {
                   child: const Text('Financial Statement',
                       style: TextStyle(fontSize: 18)),
                 ),
-                SizedBox(width: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => SavingsScreen(
-                          income: totalIncome,
-                          expenditure: totalExpenses,
-                        ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  ),
-                  child: const Text('Savings', style: TextStyle(fontSize: 18)),
-                ),
               ],
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ProfileScreen()),
-          );
-        },
-        backgroundColor: Colors.blue,
-        child: const Icon(Icons.person),
+      floatingActionButton: Stack(
+        children: [
+          Positioned(
+            right: 20,
+            bottom: 20,
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfileScreen(),
+                  ),
+                );
+              },
+              backgroundColor: Colors.blue,
+              child: const Icon(Icons.person),
+            ),
+          ),
+          Positioned(
+            right: 20,
+            bottom: 80,
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SavingsScreen(
+                      income: totalIncome,
+                      expenditure: totalExpenses,
+                    ),
+                  ),
+                );
+              },
+              backgroundColor: Colors.orange,
+              child: const Icon(Icons.savings),
+            ),
+          ),
+        ],
       ),
     );
   }

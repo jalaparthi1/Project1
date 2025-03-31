@@ -3,17 +3,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
 import 'home_screen.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
-  final String? storedUser = prefs.getString('username');
-  final String? storedPass = prefs.getString('password');
-  runApp(MyApp(loggedIn: storedUser != null && storedPass != null));
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool loggedIn; 
-  const MyApp({super.key, required this.loggedIn});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +19,42 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         useMaterial3: true,
       ),
-      home: loggedIn ? HomeScreen() : LoginScreen(),
+      home: AuthCheck(), // Load authentication check screen first
     );
+  }
+}
+
+class AuthCheck extends StatefulWidget {
+  @override
+  _AuthCheckState createState() => _AuthCheckState();
+}
+
+class _AuthCheckState extends State<AuthCheck> {
+  bool? loggedIn;
+
+  @override
+  void initState() {
+    super.initState();
+    checkLoginStatus();
+  }
+
+  Future<void> checkLoginStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? storedUser = prefs.getString('username');
+    final String? storedPass = prefs.getString('password');
+
+    setState(() {
+      loggedIn = (storedUser != null && storedPass != null);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loggedIn == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    return loggedIn! ? HomeScreen() : LoginScreen();
   }
 }

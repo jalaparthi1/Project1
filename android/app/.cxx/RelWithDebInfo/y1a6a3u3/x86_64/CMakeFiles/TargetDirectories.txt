@@ -1,0 +1,2 @@
+/Users/joshikaalaparthi/Desktop/MAD/Project1/android/app/.cxx/RelWithDebInfo/y1a6a3u3/x86_64/CMakeFiles/edit_cache.dir
+/Users/joshikaalaparthi/Desktop/MAD/Project1/android/app/.cxx/RelWithDebInfo/y1a6a3u3/x86_64/CMakeFiles/rebuild_cache.dir
