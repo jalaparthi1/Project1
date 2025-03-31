@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:project_1/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'account_setup_screen.dart';
+import 'home_screen.dart';
+import 'account_setup_screen.dart'; // Make sure to have this screen for account creation
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -9,8 +9,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class LoginScreenState extends State<LoginScreen> {
-  final TextEditingController username = TextEditingController();
-  final TextEditingController password = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -21,8 +21,8 @@ class LoginScreenState extends State<LoginScreen> {
   Future<void> savedLoginDetails() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      username.text = prefs.getString('username') ?? '';
-      password.text = prefs.getString('password') ?? '';
+      usernameController.text = prefs.getString('username') ?? '';
+      passwordController.text = prefs.getString('password') ?? '';
     });
   }
 
@@ -31,7 +31,8 @@ class LoginScreenState extends State<LoginScreen> {
     String storedUser = prefs.getString('username') ?? '';
     String storedPass = prefs.getString('password') ?? '';
 
-    if (username.text == storedUser && password.text == storedPass) {
+    if (usernameController.text == storedUser &&
+        passwordController.text == storedPass) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Login Successful'),
@@ -65,7 +66,7 @@ class LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
-              controller: username,
+              controller: usernameController,
               decoration: InputDecoration(
                 labelText: "Username",
                 border: OutlineInputBorder(
@@ -76,7 +77,7 @@ class LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 15),
             TextField(
-              controller: password,
+              controller: passwordController,
               decoration: InputDecoration(
                 labelText: 'Password',
                 border: OutlineInputBorder(
@@ -97,7 +98,7 @@ class LoginScreenState extends State<LoginScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text("Login", // Changed text to "Login"
+              child: const Text("Login",
                   style: TextStyle(fontSize: 16, color: Colors.white)),
             ),
             const SizedBox(height: 20),

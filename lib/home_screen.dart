@@ -414,8 +414,8 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
-                  child: const Text('Financial Statement',
-                      style: TextStyle(fontSize: 18)),
+                  child:
+                      const Text('Financial', style: TextStyle(fontSize: 18)),
                 ),
               ],
             ),
