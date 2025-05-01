@@ -5,7 +5,7 @@ import 'login_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -15,18 +15,39 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Finance Manager',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
+        textTheme: const TextTheme(
+          labelLarge: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ),
-      home: AuthCheck(), // Load authentication check screen first
+      home: const AuthCheck(), // Load authentication check screen first
     );
   }
 }
 
 class AuthCheck extends StatefulWidget {
+  const AuthCheck({super.key});
+
   @override
-  _AuthCheckState createState() => _AuthCheckState();
+  State<AuthCheck> createState() => _AuthCheckState();
 }
 
 class _AuthCheckState extends State<AuthCheck> {
@@ -54,7 +75,8 @@ class _AuthCheckState extends State<AuthCheck> {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
+    } else {
+      return loggedIn! ? HomeScreen() : LoginScreen();
     }
-    return loggedIn! ? HomeScreen() : LoginScreen();
   }
 }

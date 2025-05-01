@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
-import 'account_setup_screen.dart'; // Make sure to have this screen for account creation
+import 'account_setup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -34,16 +34,18 @@ class LoginScreenState extends State<LoginScreen> {
     if (usernameController.text == storedUser &&
         passwordController.text == storedPass) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Login Successful'),
           backgroundColor: Colors.green,
         ),
       );
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Incorrect Username or Password'),
           backgroundColor: Colors.red,
         ),
@@ -53,9 +55,23 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final TextStyle buttonTextStyle = const TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+      fontFamily: 'Roboto', // Optional, can be removed if not needed
+      color: Colors.white,
+    );
+
+    final TextStyle outlinedButtonTextStyle = const TextStyle(
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+      fontFamily: 'Roboto',
+      color: Colors.deepPurple,
+    );
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Login"),
+        title: const Text("Login", style: TextStyle(fontSize: 24)),
         centerTitle: true,
         elevation: 3,
         backgroundColor: Colors.deepPurple,
@@ -69,6 +85,7 @@ class LoginScreenState extends State<LoginScreen> {
               controller: usernameController,
               decoration: InputDecoration(
                 labelText: "Username",
+                labelStyle: TextStyle(fontSize: 16),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -80,6 +97,7 @@ class LoginScreenState extends State<LoginScreen> {
               controller: passwordController,
               decoration: InputDecoration(
                 labelText: 'Password',
+                labelStyle: TextStyle(fontSize: 16),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -87,19 +105,18 @@ class LoginScreenState extends State<LoginScreen> {
               ),
               obscureText: true,
             ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 30),
             ElevatedButton(
               onPressed: authorization,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    const EdgeInsets.symmetric(horizontal: 48, vertical: 18),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text("Login",
-                  style: TextStyle(fontSize: 16, color: Colors.white)),
+              child: Text("Login", style: buttonTextStyle),
             ),
             const SizedBox(height: 20),
             OutlinedButton(
@@ -111,14 +128,13 @@ class LoginScreenState extends State<LoginScreen> {
               },
               style: OutlinedButton.styleFrom(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                side: BorderSide(color: Colors.deepPurple),
+                    const EdgeInsets.symmetric(horizontal: 42, vertical: 18),
+                side: const BorderSide(color: Colors.deepPurple, width: 2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text("Create Account",
-                  style: TextStyle(fontSize: 16, color: Colors.deepPurple)),
+              child: Text("Create Account", style: outlinedButtonTextStyle),
             ),
           ],
         ),

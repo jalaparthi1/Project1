@@ -4,7 +4,11 @@ class SavingsScreen extends StatefulWidget {
   final double income;
   final double expenditure;
 
-  SavingsScreen({required this.income, required this.expenditure});
+  const SavingsScreen({
+    Key? key,
+    required this.income,
+    required this.expenditure,
+  }) : super(key: key);
 
   @override
   _SavingsScreenState createState() => _SavingsScreenState();
@@ -33,11 +37,12 @@ class _SavingsScreenState extends State<SavingsScreen> {
 
   void _showStockSelectionDialog() {
     List<String> tempSelectedStocks = List.from(selectedStocks);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Select Stocks to Invest in"),
+          title: const Text("Select Stocks to Invest in"),
           content: SingleChildScrollView(
             child: Column(
               children: stockPrices.keys.map((stock) {
@@ -66,7 +71,7 @@ class _SavingsScreenState extends State<SavingsScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("Cancel"),
+              child: const Text("Cancel"),
             ),
             TextButton(
               onPressed: () {
@@ -86,7 +91,7 @@ class _SavingsScreenState extends State<SavingsScreen> {
 
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text("Invest"),
+              child: const Text("Invest"),
             ),
           ],
         );
@@ -98,7 +103,7 @@ class _SavingsScreenState extends State<SavingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Savings & Investment'),
+        title: const Text('Savings & Investment'),
         backgroundColor: Colors.blue,
       ),
       body: Padding(
@@ -106,39 +111,48 @@ class _SavingsScreenState extends State<SavingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            // Savings display
             Text(
               'Total Savings: \$${savings.toStringAsFixed(2)}',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
+
+            // Invest Button
             ElevatedButton(
               onPressed: _showStockSelectionDialog,
-              child: Text('Invest in Stocks'),
+              child: const Text('Invest in Stocks'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
             ),
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+
+            // Display selected stocks
+            const Text(
               'Selected Stocks for Investment:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             selectedStocks.isEmpty
-                ? Text("No stocks selected", style: TextStyle(fontSize: 16))
+                ? const Text("No stocks selected",
+                    style: TextStyle(fontSize: 16))
                 : Column(
                     children: selectedStocks.map((stock) {
                       return ListTile(
                         title: Text('$stock - \$${stockPrices[stock]}'),
-                        leading: Icon(Icons.trending_up),
+                        leading: const Icon(Icons.trending_up),
                       );
                     }).toList(),
                   ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
+
+            // Total investment display
             Text(
               'Total Investment in Stocks: \$${totalInvestment.toStringAsFixed(2)}',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),

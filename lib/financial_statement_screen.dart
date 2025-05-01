@@ -7,12 +7,13 @@ class FinancialStatementScreen extends StatelessWidget {
   final double totalIncome;
   final double totalExpenses;
 
-  FinancialStatementScreen({
+  const FinancialStatementScreen({
+    Key? key,
     required this.expenseCategories,
     required this.expenseData,
     required this.totalIncome,
     required this.totalExpenses,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +21,9 @@ class FinancialStatementScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Financial Statement"),
+        title: const Text("Financial Statement"),
         backgroundColor: Colors.teal.shade700,
-        elevation: 4.0,
+        elevation: 4,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -30,53 +31,30 @@ class FinancialStatementScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Total Income Card
               _buildAnimatedCard(
                 title: "Total Income",
                 amount: totalIncome,
                 color: Colors.green,
               ),
-              SizedBox(height: 16),
-
-              // Total Expenses Card
+              const SizedBox(height: 16),
               _buildAnimatedCard(
                 title: "Total Expenses",
                 amount: totalExpenses,
                 color: Colors.red,
               ),
-              SizedBox(height: 16),
-
-              // Remaining Amount Card
+              const SizedBox(height: 16),
               _buildAnimatedCard(
                 title: "Remaining Amount",
                 amount: remainingAmount,
                 color: remainingAmount >= 0 ? Colors.green : Colors.red,
               ),
-              SizedBox(height: 16),
-
-              // Pie Chart
-              Text(
-                "Expense Breakdown",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: 16),
+              const SizedBox(height: 24),
+              _buildSectionTitle("Expense Breakdown"),
+              const SizedBox(height: 16),
               _buildAnimatedPieChart(),
-              SizedBox(height: 16),
-
-              // Expense Category Breakdown
-              Text(
-                "Category Details",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: 16),
+              const SizedBox(height: 32),
+              _buildSectionTitle("Category Details"),
+              const SizedBox(height: 16),
               _buildAnimatedExpenseList(),
             ],
           ),
@@ -85,24 +63,34 @@ class FinancialStatementScreen extends StatelessWidget {
     );
   }
 
-  // Method to create the animated financial cards (Income, Expenses, Remaining)
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 22,
+        fontWeight: FontWeight.bold,
+        color: Colors.black87,
+      ),
+    );
+  }
+
   Widget _buildAnimatedCard({
     required String title,
     required double amount,
     required Color color,
   }) {
     return AnimatedContainer(
-      duration: Duration(seconds: 1),
+      duration: const Duration(milliseconds: 700),
       curve: Curves.easeInOut,
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
             color: color.withOpacity(0.3),
-            blurRadius: 10,
-            offset: Offset(0, 5),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -112,17 +100,17 @@ class FinancialStatementScreen extends StatelessWidget {
           Text(
             title,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             "\$${amount.toStringAsFixed(2)}",
             style: TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
               color: color,
             ),
           ),
@@ -131,29 +119,27 @@ class FinancialStatementScreen extends StatelessWidget {
     );
   }
 
-  // Animated Pie Chart with a fade-in effect
   Widget _buildAnimatedPieChart() {
     return AnimatedOpacity(
       opacity: 1.0,
-      duration: Duration(seconds: 1),
-      child: Container(
+      duration: const Duration(seconds: 1),
+      child: SizedBox(
         height: 300,
         child: PieChart(
           PieChartData(
-            sectionsSpace: 0,
-            centerSpaceRadius: 50,
+            centerSpaceRadius: 45,
+            sectionsSpace: 2,
             sections: expenseCategories.map((category) {
-              double categoryAmount = expenseData[category] ?? 0.0;
-              double percentage = totalExpenses > 0
-                  ? (categoryAmount / totalExpenses) * 100
-                  : 0.0;
+              final double value = expenseData[category] ?? 0.0;
+              final double percentage =
+                  totalExpenses > 0 ? (value / totalExpenses) * 100 : 0.0;
 
               return PieChartSectionData(
-                value: categoryAmount,
+                value: value,
                 color: _getCategoryColor(category),
-                radius: 50,
+                radius: 60,
                 title: '${percentage.toStringAsFixed(1)}%',
-                titleStyle: TextStyle(
+                titleStyle: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -166,46 +152,39 @@ class FinancialStatementScreen extends StatelessWidget {
     );
   }
 
-  // Animated List of Expense Categories with sliding effect
   Widget _buildAnimatedExpenseList() {
     return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: expenseCategories.length,
       itemBuilder: (context, index) {
-        String category = expenseCategories[index];
-        double categoryAmount = expenseData[category] ?? 0.0;
-        double percentage =
-            totalExpenses > 0 ? (categoryAmount / totalExpenses) * 100 : 0.0;
+        final category = expenseCategories[index];
+        final amount = expenseData[category] ?? 0.0;
+        final percentage =
+            totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0.0;
+        final color = _getCategoryColor(category);
 
         return AnimatedSlide(
-          offset: Offset(0, 0),
-          duration: Duration(milliseconds: 500),
+          offset: const Offset(0, 0),
+          duration: const Duration(milliseconds: 500),
           child: Card(
-            elevation: 5.0,
-            shadowColor: _getCategoryColor(category).withOpacity(0.3),
+            elevation: 4,
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            color: color.withOpacity(0.1),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            color: _getCategoryColor(category).withOpacity(0.1),
             child: ListTile(
-              contentPadding:
-                  EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-              leading: Icon(
-                Icons.category,
-                color: _getCategoryColor(category),
-              ),
+              leading: Icon(Icons.label, color: color),
               title: Text(
                 category,
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               subtitle: Text(
-                '\$${categoryAmount.toStringAsFixed(2)} (${percentage.toStringAsFixed(1)}%)',
-                style: TextStyle(
-                  color: _getCategoryColor(category),
-                  fontSize: 16,
-                ),
+                "\$${amount.toStringAsFixed(2)} (${percentage.toStringAsFixed(1)}%)",
+                style: TextStyle(color: color),
               ),
-              trailing: Icon(Icons.arrow_forward_ios),
+              trailing: const Icon(Icons.chevron_right),
             ),
           ),
         );
@@ -213,18 +192,17 @@ class FinancialStatementScreen extends StatelessWidget {
     );
   }
 
-  // Method to determine color for each category
   Color _getCategoryColor(String category) {
-    switch (category) {
-      case 'Entertainment':
+    switch (category.toLowerCase()) {
+      case 'entertainment':
         return Colors.orange;
-      case 'Dining':
+      case 'dining':
         return Colors.green;
-      case 'Grocery':
+      case 'grocery':
         return Colors.blue;
-      case 'Rent/Utilities':
+      case 'rent/utilities':
         return Colors.purple;
-      case 'Shopping':
+      case 'shopping':
         return Colors.red;
       default:
         return Colors.grey;

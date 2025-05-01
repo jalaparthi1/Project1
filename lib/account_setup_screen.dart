@@ -12,15 +12,15 @@ class AccountSetupScreenState extends State<AccountSetupScreen> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  // Save user details to SharedPreferences
   Future<void> saveDetails() async {
     if (fullNameController.text.isEmpty ||
         usernameController.text.isEmpty ||
         passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Please fill in all fields'),
-            backgroundColor: Colors.red),
+          content: Text('Please fill in all fields'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -33,7 +33,9 @@ class AccountSetupScreenState extends State<AccountSetupScreen> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-          content: Text('Account Created'), backgroundColor: Colors.green),
+        content: Text('Account Created'),
+        backgroundColor: Colors.green,
+      ),
     );
 
     Future.delayed(const Duration(seconds: 1), () {
@@ -44,6 +46,27 @@ class AccountSetupScreenState extends State<AccountSetupScreen> {
     });
   }
 
+  Widget buildTextField({
+    required TextEditingController controller,
+    required String label,
+    bool obscureText = false,
+    IconData? icon,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: icon != null ? Icon(icon) : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,62 +74,61 @@ class AccountSetupScreenState extends State<AccountSetupScreen> {
         title: const Text('Create Your Account'),
         backgroundColor: Colors.deepPurple,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
+            const SizedBox(height: 40),
+            buildTextField(
               controller: fullNameController,
-              decoration: InputDecoration(
-                labelText: 'Full Name',
-                border: OutlineInputBorder(),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              ),
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: usernameController,
-              decoration: InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              ),
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-              ),
+              label: 'Full Name',
+              icon: Icons.person,
             ),
             const SizedBox(height: 20),
+            buildTextField(
+              controller: usernameController,
+              label: 'Username',
+              icon: Icons.account_circle,
+            ),
+            const SizedBox(height: 20),
+            buildTextField(
+              controller: passwordController,
+              label: 'Password',
+              icon: Icons.lock,
+              obscureText: true,
+            ),
+            const SizedBox(height: 30),
             ElevatedButton(
               onPressed: saveDetails,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.deepPurple,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Create Account',
-                  style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Create Account',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
             ),
             const SizedBox(height: 20),
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Login Now',
-                  style: TextStyle(fontSize: 16, color: Colors.deepPurple)),
+              child: const Text(
+                'Login Now',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple),
+              ),
             ),
           ],
         ),

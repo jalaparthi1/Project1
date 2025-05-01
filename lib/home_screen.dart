@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'profile_settings_screen.dart';
 import 'BudgetScreen.dart';
 import 'financial_statement_screen.dart';
-import 'Savings_investments_Screen.dart'; // Import the SavingsScreen
+import 'Savings_investments_Screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -32,6 +32,18 @@ class HomeScreenState extends State<HomeScreen> {
   double totalIncome = 0.0;
   double totalExpenses = 0.0;
   DateTime selectedDate = DateTime.now();
+
+  final ButtonStyle mainButtonStyle = ElevatedButton.styleFrom(
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(20),
+    ),
+    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
+    textStyle: const TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+      fontFamily: 'Roboto',
+    ),
+  );
 
   Future<void> loadBudgetData() async {
     final prefs = await SharedPreferences.getInstance();
@@ -63,33 +75,27 @@ class HomeScreenState extends State<HomeScreen> {
       setState(() {
         selectedDate = picked;
       });
-      if (isIncome) {
-        incomePopUp();
-      } else {
-        expensePopUp();
-      }
+      isIncome ? incomePopUp() : expensePopUp();
     }
   }
 
   void incomeUpdate(double incomeAmt) async {
     final prefs = await SharedPreferences.getInstance();
     final String date = DateFormat('yyyy-MM-dd').format(selectedDate);
-    final String incomeKey = 'income_$date';
-    await prefs.setDouble(incomeKey, incomeAmt);
+    await prefs.setDouble('income_$date', incomeAmt);
     await displayTransaction(date, 'Income: \$${incomeAmt.toStringAsFixed(2)}');
     setState(() {
-      totalIncome = totalIncome + incomeAmt;
+      totalIncome += incomeAmt;
     });
   }
 
   void expenseUpdate(
       Map<String, bool> selectedCategories, double expenseAmt) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     final String date = DateFormat('yyyy-MM-dd').format(selectedDate);
     for (var entry in selectedCategories.entries) {
       if (entry.value) {
-        final String expenseKey = 'expense_${entry.key}_$date';
-        await prefs.setDouble(expenseKey, expenseAmt);
+        await prefs.setDouble('expense_${entry.key}_$date', expenseAmt);
         await displayTransaction(
             date, 'Expense (${entry.key}): \$${expenseAmt.toStringAsFixed(2)}');
         setState(() {
@@ -105,10 +111,10 @@ class HomeScreenState extends State<HomeScreen> {
 
   Future<void> displayTransaction(String date, String transaction) async {
     final prefs = await SharedPreferences.getInstance();
-    final String transactionKey = 'transaction_$date';
-    List<String> transactions = prefs.getStringList(transactionKey) ?? [];
+    final key = 'transaction_$date';
+    List<String> transactions = prefs.getStringList(key) ?? [];
     transactions.add(transaction);
-    await prefs.setStringList(transactionKey, transactions);
+    await prefs.setStringList(key, transactions);
   }
 
   void incomePopUp() {
@@ -124,11 +130,9 @@ class HomeScreenState extends State<HomeScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                    "Income Amount for ${DateFormat('yyyy-MM-dd').format(selectedDate)}:",
-                    style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black)),
+                  "Income Amount for ${DateFormat('yyyy-MM-dd').format(selectedDate)}:",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                ),
                 SizedBox(height: 10),
                 TextField(
                   controller: income,
@@ -138,7 +142,7 @@ class HomeScreenState extends State<HomeScreen> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     double incomeAmount = double.tryParse(income.text) ?? 0.0;
@@ -148,19 +152,15 @@ class HomeScreenState extends State<HomeScreen> {
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text("Please enter a valid income amount"),
-                        ),
+                            content:
+                                Text("Please enter a valid income amount")),
                       );
                     }
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  style: mainButtonStyle.copyWith(
+                    backgroundColor: MaterialStateProperty.all(Colors.green),
                   ),
-                  child: const Text("Save", style: TextStyle(fontSize: 18)),
+                  child: const Text("Save"),
                 ),
               ],
             ),
@@ -193,11 +193,10 @@ class HomeScreenState extends State<HomeScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                        "Expense Amount for ${DateFormat('yyyy-MM-dd').format(selectedDate)}:",
-                        style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black)),
+                      "Expense Amount for ${DateFormat('yyyy-MM-dd').format(selectedDate)}:",
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+                    ),
                     SizedBox(height: 10),
                     TextField(
                       controller: expenses,
@@ -226,39 +225,29 @@ class HomeScreenState extends State<HomeScreen> {
                         );
                       }).toList(),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
                         double expenseAmount =
                             double.tryParse(expenses.text) ?? 0.0;
+                        bool categorySelected =
+                            selectedCategories.containsValue(true);
 
-                        bool categorySelected = selectedCategories.values
-                            .any((isSelected) => isSelected);
-
-                        if (categorySelected) {
+                        if (categorySelected && expenseAmount > 0) {
                           expenseUpdate(selectedCategories, expenseAmount);
                           Navigator.pop(context);
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content:
-                                  Text('Please select at least one category'),
-                            ),
+                                content: Text(
+                                    'Enter amount & select at least one category')),
                           );
                         }
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      style: mainButtonStyle.copyWith(
+                        backgroundColor: MaterialStateProperty.all(Colors.red),
                       ),
-                      child: const Text(
-                        'Save Expense',
-                        style: TextStyle(fontSize: 18),
-                      ),
+                      child: const Text('Save Expense'),
                     ),
                   ],
                 ),
@@ -271,29 +260,20 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   List<BarChartGroupData> barGroups() {
-    List<BarChartGroupData> groups = [
+    return [
       BarChartGroupData(
         x: 0,
         barRods: [
-          BarChartRodData(
-            toY: totalIncome,
-            color: Colors.green,
-            width: 20,
-          ),
+          BarChartRodData(toY: totalIncome, color: Colors.green, width: 20)
         ],
       ),
       BarChartGroupData(
         x: 1,
         barRods: [
-          BarChartRodData(
-            toY: totalExpenses,
-            color: Colors.red,
-            width: 20,
-          ),
+          BarChartRodData(toY: totalExpenses, color: Colors.red, width: 20)
         ],
       ),
     ];
-    return groups;
   }
 
   @override
@@ -309,61 +289,48 @@ class HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20.0),
-              child: SizedBox(
-                height: 300,
-                child: BarChart(
-                  BarChartData(
-                    alignment: BarChartAlignment.spaceAround,
-                    maxY: 1000,
-                    barGroups: barGroups(),
-                    titlesData: FlTitlesData(
-                      show: true,
-                      bottomTitles: AxisTitles(
-                        sideTitles: SideTitles(
-                          showTitles: true,
-                          getTitlesWidget: (double value, TitleMeta meta) {
-                            const titles = ['Income', 'Expenses'];
-                            final index = value.toInt();
-                            return Text(titles[index],
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w500));
-                          },
-                        ),
+            SizedBox(
+              height: 300,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: 1000,
+                  barGroups: barGroups(),
+                  titlesData: FlTitlesData(
+                    show: true,
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          const titles = ['Income', 'Expenses'];
+                          return Text(titles[value.toInt()],
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w500));
+                        },
                       ),
                     ),
                   ),
                 ),
               ),
             ),
+            SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
                   onPressed: incomePopUp,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  style: mainButtonStyle.copyWith(
+                    backgroundColor: MaterialStateProperty.all(Colors.green),
                   ),
-                  child:
-                      const Text('Add Income', style: TextStyle(fontSize: 18)),
+                  child: const Text('Add Income'),
                 ),
                 SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: expensePopUp,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  style: mainButtonStyle.copyWith(
+                    backgroundColor: MaterialStateProperty.all(Colors.red),
                   ),
-                  child:
-                      const Text('Add Expense', style: TextStyle(fontSize: 18)),
+                  child: const Text('Add Expense'),
                 ),
               ],
             ),
@@ -374,48 +341,36 @@ class HomeScreenState extends State<HomeScreen> {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BudgetScreen(
-                          expenseCategories: expenseCategories,
-                        ),
-                      ),
-                    );
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BudgetScreen(
+                            expenseCategories: expenseCategories,
+                          ),
+                        ));
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  style: mainButtonStyle.copyWith(
+                    backgroundColor: MaterialStateProperty.all(Colors.blue),
                   ),
-                  child: const Text('Manage Budget',
-                      style: TextStyle(fontSize: 18)),
+                  child: const Text('Manage Budget'),
                 ),
                 SizedBox(width: 20),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => FinancialStatementScreen(
-                          expenseCategories: expenseCategories,
-                          expenseData: expenseNames,
-                          totalIncome: totalIncome,
-                          totalExpenses: totalExpenses,
-                        ),
-                      ),
-                    );
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FinancialStatementScreen(
+                            expenseCategories: expenseCategories,
+                            expenseData: expenseNames,
+                            totalIncome: totalIncome,
+                            totalExpenses: totalExpenses,
+                          ),
+                        ));
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  style: mainButtonStyle.copyWith(
+                    backgroundColor: MaterialStateProperty.all(Colors.blue),
                   ),
-                  child:
-                      const Text('Financial', style: TextStyle(fontSize: 18)),
+                  child: const Text('Financial'),
                 ),
               ],
             ),
@@ -431,9 +386,7 @@ class HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfileScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => ProfileScreen()),
                 );
               },
               backgroundColor: Colors.blue,

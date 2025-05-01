@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class BudgetScreen extends StatefulWidget {
   final List<String> expenseCategories;
 
-  // Constructor accepting expenseCategories as a parameter
   BudgetScreen({required this.expenseCategories});
 
   @override
@@ -15,10 +14,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
   final TextEditingController spentController = TextEditingController();
   String? selectedCategory;
   List<Map<String, dynamic>> budgets = [];
-  String errorMessage = '';
 
   // Function to add or update a budget
-  void addOrUpdateBudget({int? index}) {
+  void addOrUpdateBudget({int? index, required BuildContext dialogContext}) {
     final budgetAmount = double.tryParse(budgetController.text);
     final spentAmount = double.tryParse(spentController.text);
 
@@ -27,113 +25,146 @@ class _BudgetScreenState extends State<BudgetScreen> {
         spentAmount != null) {
       setState(() {
         if (index != null) {
-          // Update existing budget
           budgets[index] = {
             'category': selectedCategory,
             'budget': budgetAmount,
             'spent': spentAmount,
           };
         } else {
-          // Add new budget
           budgets.add({
             'category': selectedCategory,
             'budget': budgetAmount,
             'spent': spentAmount,
           });
         }
-        // Reset the inputs and category after adding/updating
-        selectedCategory = null;
-        budgetController.clear();
-        spentController.clear();
-        errorMessage = ''; // Reset error message
       });
+
+      Navigator.pop(dialogContext); // Close dialog
+      resetInputs();
     } else {
-      setState(() {
-        errorMessage = 'Please enter valid values for all fields.';
-      });
+      ScaffoldMessenger.of(dialogContext).showSnackBar(
+        SnackBar(
+          content: Text('Please enter valid values for all fields.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
-  // Function to open a dialog to add or edit a budget
+  void resetInputs() {
+    selectedCategory = null;
+    budgetController.clear();
+    spentController.clear();
+  }
+
+  // Dialog for adding/editing budgets
   void openAddOrEditBudgetDialog({int? index}) {
     if (index != null) {
-      // If index is provided, this means we are editing an existing budget
       selectedCategory = budgets[index]['category'];
       budgetController.text = budgets[index]['budget'].toString();
       spentController.text = budgets[index]['spent'].toString();
+    } else {
+      resetInputs();
     }
 
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(index != null ? 'Edit Budget' : 'Add Budget'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButton<String>(
-                hint: const Text('Select Expense Category'),
-                value: selectedCategory,
-                onChanged: (value) {
-                  setState(() {
-                    selectedCategory = value;
-                  });
-                },
-                items: widget.expenseCategories
-                    .map((category) => DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(category),
-                        ))
-                    .toList(),
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(index != null ? 'Edit Budget' : 'Add Budget'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: selectedCategory,
+                    hint: const Text('Select Category'),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                    items: widget.expenseCategories
+                        .map((category) => DropdownMenuItem(
+                              value: category,
+                              child: Text(category),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        selectedCategory = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: budgetController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Budget Amount',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: spentController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      labelText: 'Spent Amount',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: budgetController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Budget Amount',
-                  border: OutlineInputBorder(),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(dialogContext);
+                  },
+                  child: const Text('Cancel'),
                 ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: spentController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Spent Amount',
-                  border: OutlineInputBorder(),
+                ElevatedButton(
+                  onPressed: () {
+                    addOrUpdateBudget(
+                        index: index, dialogContext: dialogContext);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                  ),
+                  child: Text(index != null ? 'Update Budget' : 'Save Budget'),
                 ),
-              ),
-              const SizedBox(height: 10),
-              if (errorMessage.isNotEmpty)
-                Text(
-                  errorMessage,
-                  style: TextStyle(color: Colors.red),
-                ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close the dialog
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                addOrUpdateBudget(index: index);
-                Navigator.pop(context); // Close the dialog after saving
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    Colors.blue, // Correct parameter for background color
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              ),
-              child: Text(index != null ? 'Update Budget' : 'Save Budget'),
-            ),
-          ],
+              ],
+            );
+          },
         );
       },
+    );
+  }
+
+  // UI builder for each budget item
+  Widget buildBudgetCard(int index) {
+    final budget = budgets[index];
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(16),
+        title: Text(
+          budget['category'],
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          'Budget: \$${budget['budget']}  |  Spent: \$${budget['spent']}',
+          style: const TextStyle(color: Colors.grey),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.edit, color: Colors.blue),
+          onPressed: () => openAddOrEditBudgetDialog(index: index),
+        ),
+      ),
     );
   }
 
@@ -142,71 +173,44 @@ class _BudgetScreenState extends State<BudgetScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Budget Management"),
+        backgroundColor: Colors.deepPurple,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
               setState(() {
-                // Clear the budget list if needed
                 budgets.clear();
               });
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Budgets cleared'),
+                  backgroundColor: Colors.redAccent,
+                ),
+              );
             },
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Display added budgets
-            Expanded(
+      body: budgets.isEmpty
+          ? const Center(
+              child: Text(
+                'No budgets added yet.\nTap the + button to get started!',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(16),
               child: ListView.builder(
                 itemCount: budgets.length,
-                itemBuilder: (context, index) {
-                  final budget = budgets[index];
-                  return Card(
-                    elevation: 3,
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(16.0),
-                      title: Text(
-                        budget['category'],
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text(
-                        'Budget: \$${budget['budget']} | Spent: \$${budget['spent']}',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () {
-                          // Open the dialog to edit the selected budget
-                          openAddOrEditBudgetDialog(index: index);
-                        },
-                      ),
-                    ),
-                  );
-                },
+                itemBuilder: (context, index) => buildBudgetCard(index),
               ),
             ),
-          ],
-        ),
-      ),
-      // Add "+" button in the bottom-right corner
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Open the dialog to add a new budget
-          openAddOrEditBudgetDialog();
-        },
-        child: const Icon(Icons.add),
+        onPressed: () => openAddOrEditBudgetDialog(),
         tooltip: 'Add Budget',
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.deepPurple,
+        child: const Icon(Icons.add),
       ),
     );
   }
